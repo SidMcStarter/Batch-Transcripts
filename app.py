@@ -1,6 +1,6 @@
 import tkinter as tk
 from pathlib import Path
-from tkinter import messagebox
+from tkinter import filedialog, messagebox
 
 from tkinterdnd2 import COPY, DND_FILES, TkinterDnD
 
@@ -18,9 +18,11 @@ def main():
 
     file_label = tk.Label(content, text='Selected file: None', anchor='w')
     file_label.pack(fill='x', pady=(12, 0))
-    tk.Label(content, text='Output folder: None', anchor='w').pack(fill='x', pady=(8, 0))
+    output_label = tk.Label(content, text='Output folder: None', anchor='w', wraplength=420)
+    output_label.pack(fill='x', pady=(8, 0))
 
     selected_pdf = None
+    output_folder = None
 
     def on_drop(event):
         nonlocal selected_pdf
@@ -42,8 +44,15 @@ def main():
     drop_area.drop_target_register(DND_FILES)
     drop_area.dnd_bind('<<Drop>>', on_drop)
 
-    # These controls will be enabled when their actions are connected.
-    tk.Button(content, text='Choose output folder', state='disabled').pack(pady=(16, 8))
+    def choose_output_folder():
+        nonlocal output_folder
+        folder = filedialog.askdirectory(parent=window, title='Choose output folder')
+        if folder:  # Keep the previous choice if the dialog is cancelled.
+            output_folder = Path(folder)
+            output_label.config(text=f'Output folder: {output_folder}')
+
+    tk.Button(content, text='Choose output folder', command=choose_output_folder).pack(pady=(16, 8))
+    # Splitting is connected in the final step.
     tk.Button(content, text='Split Transcripts', state='disabled').pack()
 
     window.mainloop()
