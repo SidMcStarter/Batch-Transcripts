@@ -10,19 +10,29 @@ from batch_transcripts import divide_transcripts
 def main():
     window = TkinterDnD.Tk()
     window.title('Batch Transcripts')
-    window.geometry('480x310')
+    window.geometry('540x380')
 
-    content = tk.Frame(window, padx=20, pady=20)
+    content = tk.Frame(window, padx=24, pady=24)
     content.pack(fill='both', expand=True)
+
+    tk.Label(content, text='Batch Transcripts', font=('Segoe UI', 16, 'bold'),
+             anchor='w').pack(fill='x')
+    tk.Label(content, text='Choose a PDF and where to save the split files.',
+             anchor='w').pack(fill='x', pady=(4, 0))
 
     drop_area = tk.Label(content, text='Drop a transcript PDF here or click to browse',
                          relief='groove', height=6, cursor='hand2')
-    drop_area.pack(fill='x')
+    drop_area.pack(fill='x', pady=(20, 0))
 
-    file_label = tk.Label(content, text='Selected file: None', anchor='w')
-    file_label.pack(fill='x', pady=(12, 0))
-    output_label = tk.Label(content, text='Output folder: None', anchor='w', wraplength=420)
-    output_label.pack(fill='x', pady=(8, 0))
+    file_label = tk.Label(content, text='Selected file: None', anchor='w',
+                          justify='left', wraplength=480)
+    file_label.pack(fill='x', pady=(16, 0))
+
+    output_row = tk.Frame(content)
+    output_row.pack(fill='x', pady=(12, 0))
+    output_label = tk.Label(output_row, text='Output folder: None', anchor='w',
+                            justify='left', wraplength=300)
+    output_label.pack(side='left', fill='x', expand=True)
 
     selected_pdf = None
     output_folder = None
@@ -73,7 +83,9 @@ def main():
             output_folder = Path(folder)
             output_label.config(text=f'Output folder: {output_folder}')
 
-    tk.Button(content, text='Choose output folder', command=choose_output_folder).pack(pady=(16, 8))
+    tk.Button(output_row, text='Choose output folder', command=choose_output_folder).pack(
+        side='right', padx=(12, 0)
+    )
 
     def split_transcripts():
         if selected_pdf is None or output_folder is None:
@@ -88,7 +100,9 @@ def main():
 
         messagebox.showinfo('Finished', f'Transcripts saved to:\n{output_folder}')
 
-    tk.Button(content, text='Split Transcripts', command=split_transcripts).pack()
+    tk.Button(content, text='Split Transcripts', command=split_transcripts).pack(
+        side='bottom', anchor='e'
+    )
 
     window.mainloop()
 
