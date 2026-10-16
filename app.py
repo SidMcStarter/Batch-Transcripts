@@ -54,8 +54,14 @@ def main():
     def select_pdf(path):
         nonlocal selected_pdf
         pdf_path = Path(path)
-        if not pdf_path.is_file() or pdf_path.suffix.lower() != '.pdf':
-            messagebox.showwarning('Invalid file', 'Please select one PDF file.')
+        if pdf_path.is_dir():
+            messagebox.showwarning('Folder selected', 'Choose a PDF file, not a folder.')
+            return False
+        if not pdf_path.is_file():
+            messagebox.showwarning('File not found', 'That file is not available. Choose an existing PDF.')
+            return False
+        if pdf_path.suffix.lower() != '.pdf':
+            messagebox.showwarning('Not a PDF', f'{pdf_path.name} is not a PDF. Choose a .pdf file.')
             return False
 
         selected_pdf = pdf_path
@@ -78,8 +84,11 @@ def main():
     def on_drop(event):
         # Tcl lists preserve file paths containing spaces.
         files = window.tk.splitlist(event.data)
-        if len(files) != 1:
-            messagebox.showwarning('Invalid file', 'Please select one PDF file.')
+        if not files:
+            messagebox.showwarning('No file dropped', 'Drop one PDF file or click to browse.')
+            return 'none'
+        if len(files) > 1:
+            messagebox.showwarning('Too many files', f'You dropped {len(files)} files. Drop one PDF at a time.')
             return 'none'
 
         return COPY if select_pdf(files[0]) else 'none'
@@ -102,14 +111,25 @@ def main():
     )
 
     def split_transcripts():
-        if selected_pdf is None or output_folder is None:
-            messagebox.showwarning('Missing selection', 'Drop a PDF and choose an output folder first.')
+        if selected_pdf is None:
+            messagebox.showwarning('No PDF selected', 'Drop a transcript PDF or click the drop area to browse.')
+            return
+        if output_folder is None:
+            messagebox.showwarning('No output folder selected', 'Click Choose output folder before splitting.')
+            return
+        if not selected_pdf.is_file():
+            messagebox.showerror('PDF not found', 'The selected PDF is no longer available. Choose it again.')
+            return
+        if not output_folder.is_dir():
+            messagebox.showerror('Output folder not found', 'The output folder is no longer available. Choose another folder.')
             return
 
         try:
             divide_transcripts(selected_pdf, output_folder)
         except Exception as error:
-            messagebox.showerror('Split failed', str(error))
+            messagebox.showerror('Split failed',
+                                 f'Could not split {selected_pdf.name}.\n\nReason: {error}\n\n'
+                                 'Check the PDF and that you can save files in the output folder.')
             return
 
         messagebox.showinfo('Finished', f'Transcripts saved to:\n{output_folder}')

@@ -38,6 +38,7 @@ def get_student_information(pdf_path):
                 id_list.append(student_id)
                 student_information.append({'id': student_id, 'name': name})
     #print(student_information)
+    doc.close()
     return student_information
 
 #get_ids()
@@ -46,6 +47,9 @@ def get_student_information(pdf_path):
 def divide_transcripts(pdf_path, output_folder):
     doc = get_batch_transcript(pdf_path)
     student_information = get_student_information(pdf_path)
+    if not student_information:
+        doc.close()
+        raise ValueError('No seven-digit student IDs were found. Choose a batch transcript PDF.')
     file_number = 0
 
     for student in student_information:
