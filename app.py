@@ -39,8 +39,12 @@ def main():
         return True
 
     def choose_pdf(event):
+        options = {}
+        if selected_pdf and selected_pdf.parent.is_dir():
+            options['initialdir'] = str(selected_pdf.parent)
         filename = filedialog.askopenfilename(
-            parent=window, title='Choose transcript PDF', filetypes=[('PDF files', '*.pdf')]
+            parent=window, title='Choose transcript PDF',
+            filetypes=[('PDF files', '*.pdf')], **options
         )
         if filename:  # Cancelling keeps the current selection.
             select_pdf(filename)
@@ -61,7 +65,10 @@ def main():
 
     def choose_output_folder():
         nonlocal output_folder
-        folder = filedialog.askdirectory(parent=window, title='Choose output folder')
+        options = {}
+        if output_folder and output_folder.is_dir():
+            options['initialdir'] = str(output_folder)
+        folder = filedialog.askdirectory(parent=window, title='Choose output folder', **options)
         if folder:  # Keep the previous choice if the dialog is cancelled.
             output_folder = Path(folder)
             output_label.config(text=f'Output folder: {output_folder}')
