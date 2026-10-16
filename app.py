@@ -27,33 +27,34 @@ def main():
     selected_pdf = None
     output_folder = None
 
-    def choose_pdf(event):
+    def select_pdf(path):
         nonlocal selected_pdf
+        pdf_path = Path(path)
+        if not pdf_path.is_file() or pdf_path.suffix.lower() != '.pdf':
+            messagebox.showwarning('Invalid file', 'Please select one PDF file.')
+            return False
+
+        selected_pdf = pdf_path
+        file_label.config(text=f'Selected file: {selected_pdf.name}')
+        return True
+
+    def choose_pdf(event):
         filename = filedialog.askopenfilename(
             parent=window, title='Choose transcript PDF', filetypes=[('PDF files', '*.pdf')]
         )
         if filename:  # Cancelling keeps the current selection.
-            selected_pdf = Path(filename)
-            file_label.config(text=f'Selected file: {selected_pdf.name}')
+            select_pdf(filename)
 
     drop_area.bind('<Button-1>', choose_pdf)
 
     def on_drop(event):
-        nonlocal selected_pdf
         # Tcl lists preserve file paths containing spaces.
         files = window.tk.splitlist(event.data)
         if len(files) != 1:
-            messagebox.showwarning('Invalid file', 'Please drop exactly one PDF file.')
+            messagebox.showwarning('Invalid file', 'Please select one PDF file.')
             return 'none'
 
-        pdf_path = Path(files[0])
-        if not pdf_path.is_file() or pdf_path.suffix.lower() != '.pdf':
-            messagebox.showwarning('Invalid file', 'Please drop exactly one PDF file.')
-            return 'none'
-
-        selected_pdf = pdf_path
-        file_label.config(text=f'Selected file: {selected_pdf.name}')
-        return COPY
+        return COPY if select_pdf(files[0]) else 'none'
 
     drop_area.drop_target_register(DND_FILES)
     drop_area.dnd_bind('<<Drop>>', on_drop)
