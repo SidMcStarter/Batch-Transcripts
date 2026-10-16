@@ -15,7 +15,8 @@ def main():
     content = tk.Frame(window, padx=20, pady=20)
     content.pack(fill='both', expand=True)
 
-    drop_area = tk.Label(content, text='Drop a transcript PDF here', relief='groove', height=6)
+    drop_area = tk.Label(content, text='Drop a transcript PDF here or click to browse',
+                         relief='groove', height=6, cursor='hand2')
     drop_area.pack(fill='x')
 
     file_label = tk.Label(content, text='Selected file: None', anchor='w')
@@ -25,6 +26,17 @@ def main():
 
     selected_pdf = None
     output_folder = None
+
+    def choose_pdf(event):
+        nonlocal selected_pdf
+        filename = filedialog.askopenfilename(
+            parent=window, title='Choose transcript PDF', filetypes=[('PDF files', '*.pdf')]
+        )
+        if filename:  # Cancelling keeps the current selection.
+            selected_pdf = Path(filename)
+            file_label.config(text=f'Selected file: {selected_pdf.name}')
+
+    drop_area.bind('<Button-1>', choose_pdf)
 
     def on_drop(event):
         nonlocal selected_pdf
