@@ -1,6 +1,5 @@
-import tkinter as tk
 from pathlib import Path
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, messagebox, ttk
 
 from tkinterdnd2 import COPY, DND_FILES, TkinterDnD
 
@@ -11,27 +10,42 @@ def main():
     window = TkinterDnD.Tk()
     window.title('Batch Transcripts')
     window.geometry('540x380')
+    window.configure(bg='#f6f8fb')
 
-    content = tk.Frame(window, padx=24, pady=24)
+    # The built-in clam theme lets the small set of colors work consistently.
+    style = ttk.Style(window)
+    style.theme_use('clam')
+    style.configure('TFrame', background='#f6f8fb')
+    style.configure('TLabel', background='#f6f8fb', foreground='#334155', font=('Segoe UI', 10))
+    style.configure('Title.TLabel', font=('Segoe UI', 16, 'bold'), foreground='#0f172a')
+    style.configure('Hint.TLabel', foreground='#64748b')
+    style.configure('Drop.TLabel', background='white', foreground='#2563eb',
+                    padding=(16, 34), relief='solid', borderwidth=1)
+    style.configure('TButton', padding=(10, 7), font=('Segoe UI', 10))
+    style.configure('Primary.TButton', background='#2563eb', foreground='white',
+                    padding=(16, 10), font=('Segoe UI', 10, 'bold'), borderwidth=0)
+    style.map('Primary.TButton', background=[('pressed', '#1e40af'), ('active', '#1d4ed8')])
+
+    content = ttk.Frame(window, padding=24)
     content.pack(fill='both', expand=True)
 
-    tk.Label(content, text='Batch Transcripts', font=('Segoe UI', 16, 'bold'),
-             anchor='w').pack(fill='x')
-    tk.Label(content, text='Choose a PDF and where to save the split files.',
-             anchor='w').pack(fill='x', pady=(4, 0))
+    ttk.Label(content, text='Batch Transcripts', style='Title.TLabel',
+              anchor='w').pack(fill='x')
+    ttk.Label(content, text='Choose a PDF and where to save the split files.',
+              style='Hint.TLabel', anchor='w').pack(fill='x', pady=(4, 0))
 
-    drop_area = tk.Label(content, text='Drop a transcript PDF here or click to browse',
-                         relief='groove', height=6, cursor='hand2')
+    drop_area = ttk.Label(content, text='Drop a transcript PDF here or click to browse',
+                          style='Drop.TLabel', anchor='center', cursor='hand2')
     drop_area.pack(fill='x', pady=(20, 0))
 
-    file_label = tk.Label(content, text='Selected file: None', anchor='w',
-                          justify='left', wraplength=480)
+    file_label = ttk.Label(content, text='Selected file: None', anchor='w',
+                           justify='left', wraplength=480)
     file_label.pack(fill='x', pady=(16, 0))
 
-    output_row = tk.Frame(content)
+    output_row = ttk.Frame(content)
     output_row.pack(fill='x', pady=(12, 0))
-    output_label = tk.Label(output_row, text='Output folder: None', anchor='w',
-                            justify='left', wraplength=300)
+    output_label = ttk.Label(output_row, text='Output folder: None', anchor='w',
+                             justify='left', wraplength=300)
     output_label.pack(side='left', fill='x', expand=True)
 
     selected_pdf = None
@@ -83,7 +97,7 @@ def main():
             output_folder = Path(folder)
             output_label.config(text=f'Output folder: {output_folder}')
 
-    tk.Button(output_row, text='Choose output folder', command=choose_output_folder).pack(
+    ttk.Button(output_row, text='Choose output folder', command=choose_output_folder).pack(
         side='right', padx=(12, 0)
     )
 
@@ -100,7 +114,8 @@ def main():
 
         messagebox.showinfo('Finished', f'Transcripts saved to:\n{output_folder}')
 
-    tk.Button(content, text='Split Transcripts', command=split_transcripts).pack(
+    ttk.Button(content, text='Split Transcripts', command=split_transcripts,
+               style='Primary.TButton').pack(
         side='bottom', anchor='e'
     )
 
