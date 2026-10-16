@@ -3,13 +3,8 @@ from pathlib import Path
 import re
 import os
 
-def get_batch_transcript(folder):
-    files = os.listdir(folder)
-    for file in files:
-        if file.lower().endswith('.pdf'):
-            pdf_path = os.path.join(folder, file)
-            doc = pymupdf.open(pdf_path)
-            return doc
+def get_batch_transcript(pdf_path):
+    return pymupdf.open(str(pdf_path))
 
 def return_adjusted_name(name):
     name_parts = name.split()
@@ -19,8 +14,8 @@ def return_adjusted_name(name):
     return name
 
 
-def get_student_information(input_folder):
-    doc = get_batch_transcript(input_folder)
+def get_student_information(pdf_path):
+    doc = get_batch_transcript(pdf_path)
     id_list = []
     student_information = []
 
@@ -48,9 +43,9 @@ def get_student_information(input_folder):
 #get_ids()
 
 
-def divide_transcripts(input_folder, output_folder):
-    doc = get_batch_transcript(input_folder)
-    student_information = get_student_information(input_folder)
+def divide_transcripts(pdf_path, output_folder):
+    doc = get_batch_transcript(pdf_path)
+    student_information = get_student_information(pdf_path)
     file_number = 0
 
     for student in student_information:
@@ -83,7 +78,10 @@ def main():
     data_folder = Path(__file__).resolve().parent / 'data'
     input_folder = data_folder / 'input'
     output_folder = data_folder / 'output'
-    divide_transcripts(input_folder, output_folder)
+    for file in os.listdir(input_folder):
+        if file.lower().endswith('.pdf'):
+            divide_transcripts(input_folder / file, output_folder)
+            break
 
 
 if __name__ == '__main__':
