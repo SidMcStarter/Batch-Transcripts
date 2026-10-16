@@ -4,6 +4,8 @@ from tkinter import filedialog, messagebox
 
 from tkinterdnd2 import COPY, DND_FILES, TkinterDnD
 
+from batch_transcripts import divide_transcripts
+
 
 def main():
     window = TkinterDnD.Tk()
@@ -52,8 +54,21 @@ def main():
             output_label.config(text=f'Output folder: {output_folder}')
 
     tk.Button(content, text='Choose output folder', command=choose_output_folder).pack(pady=(16, 8))
-    # Splitting is connected in the final step.
-    tk.Button(content, text='Split Transcripts', state='disabled').pack()
+
+    def split_transcripts():
+        if selected_pdf is None or output_folder is None:
+            messagebox.showwarning('Missing selection', 'Drop a PDF and choose an output folder first.')
+            return
+
+        try:
+            divide_transcripts(selected_pdf, output_folder)
+        except Exception as error:
+            messagebox.showerror('Split failed', str(error))
+            return
+
+        messagebox.showinfo('Finished', f'Transcripts saved to:\n{output_folder}')
+
+    tk.Button(content, text='Split Transcripts', command=split_transcripts).pack()
 
     window.mainloop()
 
