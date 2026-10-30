@@ -1,5 +1,5 @@
 from pathlib import Path
-from tkinter import filedialog, messagebox, ttk
+from tkinter import BooleanVar, filedialog, messagebox, ttk
 
 from tkinterdnd2 import COPY, DND_FILES, TkinterDnD
 
@@ -110,6 +110,10 @@ def main():
         side='right', padx=(12, 0)
     )
 
+    export_courses = BooleanVar(value=False)
+    ttk.Checkbutton(content, text='Export transfer credits (courses.csv)',
+                    variable=export_courses).pack(anchor='w', pady=(14, 0))
+
     def split_transcripts():
         if selected_pdf is None:
             messagebox.showwarning('No PDF selected', 'Drop a transcript PDF or click the drop area to browse.')
@@ -125,14 +129,17 @@ def main():
             return
 
         try:
-            divide_transcripts(selected_pdf, output_folder)
+            divide_transcripts(selected_pdf, output_folder, export_courses.get())
         except Exception as error:
             messagebox.showerror('Split failed',
                                  f'Could not split {selected_pdf.name}.\n\nReason: {error}\n\n'
                                  'Check the PDF and that you can save files in the output folder.')
             return
 
-        messagebox.showinfo('Finished', f'Transcripts saved to:\n{output_folder}')
+        result = f'Transcripts saved to:\n{output_folder}'
+        if export_courses.get():
+            result += '\n\nTransfer credits saved to courses.csv.'
+        messagebox.showinfo('Finished', result)
 
     ttk.Button(content, text='Split Transcripts', command=split_transcripts,
                style='Primary.TButton').pack(
